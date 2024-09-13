@@ -2,6 +2,8 @@ package com.example.test_security.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -31,20 +33,30 @@ public class SecurityConfig {
 //스프링 시큐리티 Config 클래스 설정 후 특정 경로에 대한 접근 권한이 없는 경우
 // 자동으로 로그인 페이지로 리다이렉팅 되지 않고 오류 페이지가 발생한다. 위의 admin 페이지를 따로 처리해주어야함
 
-        // "/login" 주소가 호출이 되면 시큐리티가 낚아채서 대신 로그인을 진행.
-        // 결과적으로 컨트롤러에 따로 "/login"을 구현하지 않아도 괜찮다.
-        // 이 로그인 과정에서 필요한 것이 있기 때문에 auth 패키지를 파서 CustomUserDetails 을 만들어줘야한다.
-        http
-                .formLogin((auth) -> {
-                            auth.loginPage("/login")//커스텀 로그인 페이지 지정
-                                    .loginProcessingUrl("/loginProc")//SecurityConfig에서 loginProcessingUrl() 메서드를 작성해주면 해당 Url로 요청이 될 시 SpringSecurity가 직접 알아서 로그인 과정을 진행해준다.
-                                    //위의 /loginProc 에 대한 요청이 Spring MVC와 컨트롤러에 전달되지 않는다.
-                                    .permitAll();
-
-                });
 
         http
-                .csrf((auth) -> auth.disable());
+                .httpBasic(Customizer.withDefaults());
+
+
+//maximumSession(정수) : 하나의 아이디에 대한 다중 로그인 허용 개수
+//
+//maxSessionPreventsLogin(불린) : 다중 로그인 개수를 초과하였을 경우 처리 방법
+//true : 초과시 새로운 로그인 차단
+//false : 초과시 기존 세션 하나 삭제
+        http
+                .sessionManagement((auth) -> auth
+                        .maximumSessions(1)
+                        .maxSessionsPreventsLogin(true));
+
+        //세션 고정 공격을 보호하기 위한 로그인 성공시 세션 설정 방법은 sessionManagement() 메소드의 sessionFixation() 메소드를 통해서 설정할 수 있다.
+        //- sessionManagement().sessionFixation().none() : 로그인 시 세션 정보 변경 안함
+        //- sessionManagement().sessionFixation().newSession() : 로그인 시 세션 새로 생성
+        //- sessionManagement().sessionFixation().changeSessionId() : 로그인 시 동일한 세션에 대한 id 변경← 주로씀
+        http
+                .sessionManagement((auth) -> auth
+                        .sessionFixation().changeSessionId());
+
+
 
         return http.build();
 
