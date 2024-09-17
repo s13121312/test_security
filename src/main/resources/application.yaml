@@ -14,4 +14,4 @@ spring:
 
   jwt:
     secret: VlwEyVBsYt9V7zq57TejMnVUyzblYcfPQye08f7MGVA9XkHa
-    expiration: 3600000  # 1시간 (밀리초 기준) 60분) * 60초 * 1000밀리초
+    # expiration: 3600000  # 1시간 (밀리초 기준) 60분) * 60초 * 1000밀리초

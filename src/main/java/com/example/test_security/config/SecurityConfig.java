@@ -65,7 +65,7 @@ public class SecurityConfig {
 
                         return configuration;
                     }
-                }))
+                }));
 
 
         //csrf disable
