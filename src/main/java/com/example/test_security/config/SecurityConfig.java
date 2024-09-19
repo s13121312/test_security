@@ -2,6 +2,7 @@ package com.example.test_security.config;
 
 import com.example.test_security.repository.RefreshRepository;
 import jakarta.servlet.http.HttpServletRequest;
+import jwt.CustomLogoutFilter;
 import jwt.JWTFilter;
 import jwt.JWTUtil;
 import jwt.LoginFilter;
@@ -98,6 +99,8 @@ public class SecurityConfig {
         http
                 .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil, refreshRepository), UsernamePasswordAuthenticationFilter.class);
 
+        http
+                .addFilterBefore(new CustomLogoutFilter(jwtUtil, refreshRepository), LoginFilter.class);
 
 
         //세션 설정 jwt방식에서는 session을 stateless방식으로 가짐. 포인트!!
